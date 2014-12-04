@@ -1,0 +1,28 @@
+#!/usr/bin/python
+
+import os
+
+import setup
+setup.pre_install()
+
+from charmhelpers.core import hookenv
+from charmhelpers.fetch import add_source, apt_update, apt_install
+
+
+def install():
+    '''
+    Installs the bird package.
+    '''
+    hookenv.log('Installing bird')
+
+    # Temporary hack: set the LANG variable so that BIRD's
+    # PGP key functions correctly. This is safe for me as a temporary
+    # hack, but must be removed later.
+    os.environ['LANG'] = 'en_US.UTF-8'
+    add_source('ppa:cz.nic-labs/bird')
+    apt_update()
+    apt_install(['bird'])
+
+
+if __name__ == "__main__":
+    install()

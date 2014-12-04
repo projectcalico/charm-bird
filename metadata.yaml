@@ -1,0 +1,12 @@
+name: bird
+summary: A free, Linux-based IP Routing Daemon
+maintainer: Cory Benfield <cory.benfield@metaswitch.com>
+description: |
+  The BIRD project aims to develop a fully functional dynamic IP routing daemon primarily targeted on (but not limited to) Linux,
+  FreeBSD and other UNIX-like systems and distributed under the GNU General Public License.
+tags:
+  - network
+subordinate: false
+provides:
+  bgp-route-reflector:
+    interface: bgp-route-reflector
