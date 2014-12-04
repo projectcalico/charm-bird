@@ -23,5 +23,5 @@ There are no configuration options for BIRD at this time. If you need some, plea
 # Contact Information
 
 - Find out more on [BIRD website](http://bird.network.cz/).
-- Report bugs with this charm on [Launchpad](about:blank).
+- Report bugs with this charm on [Launchpad](https://code.launchpad.net/~cory-benfield/calico-charms/bird).
 
