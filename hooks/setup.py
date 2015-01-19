@@ -1,3 +1,5 @@
+from charmhelpers.fetch import apt_install
+
 def pre_install():
     """
     Do any setup required before the install hook.
@@ -6,17 +8,6 @@ def pre_install():
     install_other_dependencies()
 
 
-def install_charmhelpers():
-    """
-    Install the charmhelpers library, if not present.
-    """
-    try:
-        import charmhelpers  # noqa
-    except ImportError:
-        import subprocess
-        subprocess.check_call(['apt-get', 'install', '-y', 'python-pip'])
-        subprocess.check_call(['pip', 'install', 'charmhelpers'])
-
 def install_other_dependencies():
     """
     Install our other dependencies, if not present.
@@ -24,13 +15,9 @@ def install_other_dependencies():
     try:
         import netifaces
     except ImportError:
-        import subprocess
-        subprocess.check_call(['apt-get', 'install', '-y', 'python-pip', 'python-dev'])
-        subprocess.check_call(['pip', 'install', 'netifaces'])
+        apt_install('python-netifaces')
 
     try:
         import netaddr
     except ImportError:
-        import subprocess
-        subprocess.check_call(['apt-get', 'install', '-y', 'python-pip'])
-        subprocess.check_call(['pip', 'install', 'netaddr'])
+        apt_install('python-netaddr')
