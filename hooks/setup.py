@@ -1,10 +1,10 @@
 from charmhelpers.fetch import apt_install
 
+
 def pre_install():
     """
     Do any setup required before the install hook.
     """
-    install_charmhelpers()
     install_other_dependencies()
 
 

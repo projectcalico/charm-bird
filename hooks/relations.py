@@ -2,7 +2,6 @@
 '''
 Relations for BIRD.
 '''
-import re
 import socket
 
 import netaddr
