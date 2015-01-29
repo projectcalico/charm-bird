@@ -52,13 +52,45 @@ class TestRelationHelpers(unittest.TestCase):
 
         self.assertEqual(r, '')
 
+    @mock.patch('netifaces.interfaces')
+    @mock.patch('netifaces.ifaddresses')
+    def test_local_ipv6_address_no_ipv6(self, ifaddresses, interfaces):
+        interfaces.return_value = ['eth0', 'lo']
+        ifaddresses.return_value = {
+            netifaces.AF_INET: [{'addr': '127.0.0.2'},
+                                {'addr': '10.0.0.1'}],
+            netifaces.AF_INET6: [{'addr': 'fe80::0001%eth0'},
+                                 {'addr': '::1%lo'}]
+        }
+
+        self.assertEqual(relations.local_ipv6_address(), None)
+
+    @mock.patch('netifaces.interfaces')
+    @mock.patch('netifaces.ifaddresses')
+    def test_local_ipv6_address(self, ifaddresses, interfaces):
+        interfaces.return_value = ['eth0', 'lo']
+        ifaddresses.return_value = {
+            netifaces.AF_INET: [{'addr': '127.0.0.2'},
+                                {'addr': '10.0.0.1'}],
+            netifaces.AF_INET6: [{'addr': 'fe80::0001%eth0'},
+                                 {'addr': '::1%lo'},
+                                 {'addr': 'fd5f:1234:1234:deed::2'}]
+        }
+
+        self.assertEqual(
+            relations.local_ipv6_address(),
+            'fd5f:1234:1234:deed::2'
+        )
+
 
 class TestRelations(unittest.TestCase):
+    @mock.patch('relations.local_ipv6_address')
     @mock.patch('charmhelpers.core.hookenv.relation_ids')
     @mock.patch('charmhelpers.core.hookenv.unit_get')
-    def test_bgp_provides(self, unit_get, relation_ids):
+    def test_bgp_provides(self, unit_get, relation_ids, local_ipv6_address):
         unit_get.return_value = '172.18.18.18'
         relation_ids.return_value = []
+        local_ipv6_address.return_value = 'fec0::1'
         r = relations.BgpRRRelation()
 
         self.assertEqual(r.name, 'bgp-route-reflector')
@@ -67,7 +99,8 @@ class TestRelations(unittest.TestCase):
 
         self.assertEqual(
             r.provide_data(),
-            {'addr': '172.18.18.18'}
+            {'addr': '172.18.18.18',
+             'addr6': 'fec0::1'}
         )
         unit_get.assert_called_with('private-address')
 
@@ -80,6 +113,7 @@ class TestRelations(unittest.TestCase):
 
         self.assertEqual(r['router_id'], '127.0.0.1')
         self.assertEqual(r['bgp_peers'], [])
+        self.assertEqual(r['bgp_peers6'], [])
 
     @mock.patch('relations.router_id')
     @mock.patch('charmhelpers.core.hookenv.relation_get')
@@ -105,9 +139,15 @@ class TestRelations(unittest.TestCase):
             r['bgp_peers'],
             ['172.18.18.19', '172.18.18.19']
         )
+        self.assertItemsEqual(
+            r['bgp_peers6'],
+            ['172.18.18.19', '172.18.18.19']
+        )
         self.assertEqual(r['router_id'], '127.0.0.1')
         relation_ids.assert_called_once_with('bgp-route-reflector')
         related_units.assert_called_once_with(1)
-        self.assertEqual(relation_get.call_count, 2)
+        self.assertEqual(relation_get.call_count, 4)
         relation_get.assert_any_call(attribute='addr', rid=1, unit=2)
         relation_get.assert_any_call(attribute='addr', rid=1, unit=3)
+        relation_get.assert_any_call(attribute='addr6', rid=1, unit=2)
+        relation_get.assert_any_call(attribute='addr6', rid=1, unit=3)

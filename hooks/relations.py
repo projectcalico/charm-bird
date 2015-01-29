@@ -55,6 +55,24 @@ def resolve_domain_name(name, ip_version=4):
     return str(addr)
 
 
+def local_ipv6_address():
+    '''
+    Determines the IPv6 address to use to contact this machine. Excludes
+    link-local addresses.
+
+    Currently only returns the first valid IPv6 address found.
+    '''
+    for iface in netifaces.interfaces():
+        addresses = netifaces.ifaddresses(iface)
+
+        for addr in addresses.get(netifaces.AF_INET6, []):
+            # Make sure we strip any interface specifier from the address.
+            addr = netaddr.IPAddress(addr['addr'].split('%')[0])
+
+            if not (addr.is_link_local() or addr.is_loopback()):
+                return str(addr)
+
+
 class BgpRRRelation(RelationContext):
     '''
     Relation context for the BGP Route Reflector interface.
@@ -67,10 +85,11 @@ class BgpRRRelation(RelationContext):
         return True
 
     def _is_ready(self, data):
-        return set(data.keys()).issuperset(set(['addr']))
+        return set(data.keys()).issuperset(set(['addr', 'addr6']))
 
     def get_data(self):
         peers = []
+        peers6 = []
 
         for rid in hookenv.relation_ids(self.name):
             for unit in hookenv.related_units(rid):
@@ -84,10 +103,21 @@ class BgpRRRelation(RelationContext):
                     if addr:
                         peers.append(addr)
 
+                rel6 = hookenv.relation_get(attribute='addr6',
+                                            rid=rid,
+                                            unit=unit)
+
+                if rel6 is not None:
+                    peers6.append(rel6)
+
         self['bgp_peers'] = peers
+        self['bgp_peers6'] = peers6
         self['router_id'] = router_id()
 
         return
 
     def provide_data(self):
-        return {'addr': hookenv.unit_get('private-address')}
+        return {
+            'addr': hookenv.unit_get('private-address'),
+            'addr6': local_ipv6_address()
+        }
