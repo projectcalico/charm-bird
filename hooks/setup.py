@@ -13,11 +13,11 @@ def install_other_dependencies():
     Install our other dependencies, if not present.
     """
     try:
-        import netifaces
+        import netifaces  # noqa
     except ImportError:
         apt_install('python-netifaces')
 
     try:
-        import netaddr
+        import netaddr  # noqa
     except ImportError:
         apt_install('python-netaddr')
