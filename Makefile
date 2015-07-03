@@ -1,17 +1,19 @@
 #!/usr/bin/make
 PYTHON := /usr/bin/env python
 
-lint:
-	@flake8 --exclude hooks/charmhelpers hooks
-	@flake8 --exclude hooks/charmhelpers unit_tests
+.venv:
+	sudo apt-get install -y python-virtualenv
+	virtualenv .venv
+	.venv/bin/pip install nose flake8 six pyyaml mock netaddr netifaces
+
+lint: .venv
+	@.venv/bin/flake8 --exclude hooks/charmhelpers hooks
+	@.venv/bin/flake8 --exclude hooks/charmhelpers unit_tests
 	@charm proof
 
-testdep:
-	@sudo apt-get install -q -y python-nose python-mock python-netaddr python-netifaces
-
-test: testdep
+test: .venv
 	@echo Starting tests...
-	@$(PYTHON) /usr/bin/nosetests --nologcapture unit_tests
+	@.venv/bin/nosetests --nologcapture unit_tests
 
 bin/charm_helpers_sync.py:
 	@mkdir -p bin
