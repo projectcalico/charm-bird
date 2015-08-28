@@ -11,10 +11,8 @@ class TestDeployment(unittest.TestCase):
         cls.deployment = amulet.Deployment(series='trusty')
 
         cls.deployment.add('bird', charm='cs:~project-calico/trusty/bird')
-        # neutron-calico currently has an install hook failure; uncomment
-        # the next 2 lines when ready to exercise bgp-route-reflector.
-        #cls.deployment.add('neutron-calico', charm='cs:~project-calico/trusty/neutron-calico')
-        #cls.deployment.relate('bird:bgp-route-reflector', 'neutron-calico:bgp-route-reflector')
+        cls.deployment.add('neutron-calico', charm='cs:~project-calico/trusty/neutron-calico')
+        cls.deployment.relate('bird:bgp-route-reflector', 'neutron-calico:bgp-route-reflector')
 
         try:
             cls.deployment.setup(timeout=900)
