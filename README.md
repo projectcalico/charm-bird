@@ -20,8 +20,18 @@ To use a BIRD daemon as a route reflector (e.g. for the open source [Project Cal
 
 There are no configuration options for BIRD at this time. If you need some, please contact the maintainer.
 
+# Testing
+
+If you have a copy of the charm source locally, you can run unit tests from the
+charm's root directory with:
+
+    make test
+
+Post deployment, you can verify the `bird` service is working with:
+
+    juju run --service=bird 'service bird status'
+
 # Contact Information
 
 - Find out more on [BIRD website](http://bird.network.cz/).
 - Report bugs with this charm on [Launchpad](https://code.launchpad.net/~cory-benfield/calico-charms/bird).
-
