@@ -1,28 +1,20 @@
-#!/usr/bin/python
+#!/bin/bash
+# Wrapper to deal with newer Ubuntu versions that don't have py2 installed
+# by default.
 
-import os
+declare -a DEPS=('apt' 'netaddr' 'netifaces')
 
-import setup
-setup.pre_install()
+check_and_install() {
+    pkg="${1}-${2}"
+    if ! dpkg -s ${pkg} 2>&1 > /dev/null; then
+        apt-get -y install ${pkg}
+    fi
+}
 
-from charmhelpers.core import hookenv
-from charmhelpers.fetch import add_source, apt_update, apt_install
+PYTHON="python"
 
+for dep in ${DEPS[@]}; do
+    check_and_install ${PYTHON} ${dep}
+done
 
-def install():
-    '''
-    Installs the bird package.
-    '''
-    hookenv.log('Installing bird')
-
-    # Temporary hack: set the LANG variable so that BIRD's
-    # PGP key functions correctly. This is safe for me as a temporary
-    # hack, but must be removed later.
-    os.environ['LANG'] = 'en_US.UTF-8'
-    add_source('ppa:cz.nic-labs/bird')
-    apt_update()
-    apt_install(['bird'])
-
-
-if __name__ == "__main__":
-    install()
+exec ./hooks/install.real
