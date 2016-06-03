@@ -10,3 +10,6 @@ subordinate: false
 provides:
   bgp-route-reflector:
     interface: bgp-route-reflector
+series:
+  - trusty
+  - xenial
