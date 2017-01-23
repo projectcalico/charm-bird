@@ -1,10 +1,10 @@
 Format: http://dep.debian.net/deps/dep5/
 
 Files: *
-Copyright: Copyright 2014, Metaswitch Networks, All Rights Reserved.
+Copyright: Copyright 2014, Tigera, Inc.  All Rights Reserved.
 License: Apache-2.0
- Apache License 
- Version 2.0, January 2004 
+ Apache License
+ Version 2.0, January 2004
  http://www.apache.org/licenses/
  TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
